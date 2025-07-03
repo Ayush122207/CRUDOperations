@@ -1,0 +1,52 @@
+﻿@page "/employees/details"
+@using Microsoft.EntityFrameworkCore
+@using CRUDOperations.Models
+@inject IDbContextFactory<CRUDOperations.Data.CRUDOperationsContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Employees</h2>
+    <hr />
+    @if (employees is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">EmployeeFirstName</dt>
+            <dd class="col-sm-10">@employees.EmployeeFirstName</dd>
+            <dt class="col-sm-2">EmployeeLastName</dt>
+            <dd class="col-sm-10">@employees.EmployeeLastName</dd>
+            <dt class="col-sm-2">Birthday</dt>
+            <dd class="col-sm-10">@employees.Birthday</dd>
+            <dt class="col-sm-2">Address</dt>
+            <dd class="col-sm-10">@employees.Address</dd>
+        </dl>
+        <div>
+            <a href="@($"/employees/edit?id={employees.Id}")">Edit</a> |
+            <a href="@($"/employees")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Employees? employees;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        employees = await context.Employees.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (employees is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

@@ -1,0 +1,39 @@
+﻿@page "/employees"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using CRUDOperations.Models
+@using CRUDOperations.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<CRUDOperations.Data.CRUDOperationsContext> DbFactory
+
+<PageTitle>Employees</PageTitle>
+
+<h1>Employees</h1>
+
+<p>
+    <a href="employees/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.Employees">
+    <PropertyColumn Property="employees => employees.EmployeeFirstName" />
+    <PropertyColumn Property="employees => employees.EmployeeLastName" />
+    <PropertyColumn Property="employees => employees.Birthday" />
+    <PropertyColumn Property="employees => employees.Address" />
+
+    <TemplateColumn Context="employees">
+        <a href="@($"employees/edit?id={employees.Id}")">Edit</a> |
+        <a href="@($"employees/details?id={employees.Id}")">Details</a> |
+        <a href="@($"employees/delete?id={employees.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private CRUDOperationsContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}
